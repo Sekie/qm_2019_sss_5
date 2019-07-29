@@ -6,7 +6,7 @@ class HartreeFock:
         self.gas_model = NobleGasModel
         self.ndof = len(self.atomic_coordinates) * NobleGasModel.orbitals_per_atom
         self.interaction_matrix = self.calculate_interaction_matrix(NobleGasModel)
-        self.hamiltonian_matrix = np.zeros((8, 8)) #self.calculate_hamiltonian_matrix(NobleGasModel)
+        self.hamiltonian_matrix = self.calculate_hamiltonian_matrix(NobleGasModel)
         self.chi_tensor = self.calculate_chi_tensor(NobleGasModel)
         self.density_matrix = self.calculate_atomic_density_matrix(NobleGasModel)
         self.fock_matrix = self.calculate_fock_matrix() #check for error
@@ -229,8 +229,8 @@ class HartreeFock:
                             s = self.gas_model.ao_index(self.gas_model.atom(r), orb_s) # r & s on same atom
                             for orb_u in self.gas_model.orbital_types:
                                 u = self.gas_model.ao_index(self.gas_model.atom(r), orb_u) # r & u on same atom
-                                print(self.gas_model.orb(r), orb_s, orb_u, r, s, t, u)
                                 chi_rsu = self.chi_on_atom(self.gas_model.orb(r), orb_s, orb_u, self.gas_model)
+                                print(self.gas_model.orb(p), orb_q, orb_t, p, q, t, self.gas_model.orb(r), orb_s, orb_u, r, s, u, chi_pqt, chi_rsu)
                                 fock_matrix[p,q] += 2.0 * chi_pqt * chi_rsu * interaction_matrix[t,u] * density_matrix[r,s]
         # Fock exchange term
         for p in range(ndof):

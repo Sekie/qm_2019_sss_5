@@ -18,8 +18,13 @@ std::string orb(int ao_index, std::vector<std::string> orbital_types, int orbita
 int ao_index(int atom_p, std::string orb_p, std::vector<std::string> orbital_types, int orbitals_per_atom)
 {
     int p = atom_p * orbitals_per_atom;
-    std::vector<std::string>::iterator it = std::find(orbital_types.begin(), orbital_types.end(), orb_p);
-    int orb_index = std::distance(orbital_types.begin(), it);
+    // std::vector<std::string>::iterator it = std::find(orbital_types.begin(), orbital_types.end(), orb_p);
+    // int orb_index = std::distance(orbital_types.begin(), it);
+    int orb_index = 0.0;
+    if (orb_p == "s") orb_index = 0;
+    if (orb_p == "px") orb_index = 1;
+    if (orb_p == "py") orb_index = 2;
+    if (orb_p == "pz") orb_index = 3;
     return p + orb_index;
 }
 
@@ -54,7 +59,7 @@ Eigen::MatrixXd calc_fock_matrix_fast(Eigen::MatrixXd hamiltonian_matrix, Eigen:
     for (int p = 0; p < ndof; p++)
     {
         int atom_p = atom(p, orbitals_per_atom);
-        std::string orb_p = orb(atom_p, orbital_types, orbitals_per_atom);
+        std::string orb_p = orb(p, orbital_types, orbitals_per_atom);
         for (auto orb_q : orbital_types)
         {
             int atom_p = atom(p, orbitals_per_atom);
@@ -66,16 +71,17 @@ Eigen::MatrixXd calc_fock_matrix_fast(Eigen::MatrixXd hamiltonian_matrix, Eigen:
                 for (int r = 0; r < ndof; r++)
                 {
                     int atom_r = atom(r, orbitals_per_atom);
-                    std::string orb_r = orb(atom_r, orbital_types, orbitals_per_atom);
+                    std::string orb_r = orb(r, orbital_types, orbitals_per_atom);
                     for (auto orb_s : orbital_types)
                     {
                         int s = ao_index(atom_r, orb_s, orbital_types, orbitals_per_atom);
                         for (auto orb_u : orbital_types)
                         {
                             int u = ao_index(atom_r, orb_u, orbital_types, orbitals_per_atom);
-                            std::cout << orbr << " " << orb_s << " " << orb_u << " " r << " " << s << " " << t << " " << u << std::endl;
                             double chi_rsu = chi_on_atom(orb_r, orb_s, orb_u, model_parameters);
                             fock_matrix(p, q) += 2.0 * chi_pqt * chi_rsu * interaction_matrix.coeffRef(t, u) * density_matrix.coeffRef(r, s);
+                            std::cout << orb_p << " " << orb_q << " " << orb_t << " " << p << " " << q << " " << t << " " 
+                            << orb_r << " " << orb_s << " " << orb_u << " " << r << " " << s << " " << u << " " << chi_pqt << " " << chi_rsu << std::endl;
                         }
                     }
                 }
@@ -141,7 +147,7 @@ int main()
     inter << 0.3603533286088998, 0.0, 0.0, 0.0, 0.1414213562373095, -0.00848528137423857, -0.01131370849898476, -0.01414213562373095, 0.0, -0.003267991835806299, 0.0, 0.0, 0.00848528137423857, 0.0013010764773832475, -0.0020364675298172566, -0.0025455844122715707, 0.0, 0.0, -0.003267991835806299, 0.0, 0.01131370849898476, -0.0020364675298172566, 0.00011313708498984776, -0.003394112549695428, 0.0, 0.0, 0.0, -0.003267991835806299, 0.01414213562373095, -0.0025455844122715707, -0.003394112549695428, -0.0014142135623730948, 0.1414213562373095, 0.00848528137423857, 0.01131370849898476, 0.01414213562373095, 0.3603533286088998, 0.0, 0.0, 0.0, -0.00848528137423857, 0.0013010764773832475, -0.0020364675298172566, -0.0025455844122715707, 0.0, -0.003267991835806299, 0.0, 0.0, -0.01131370849898476, -0.0020364675298172566, 0.00011313708498984776, -0.003394112549695428, 0.0, 0.0, -0.003267991835806299, 0.0, -0.01414213562373095, -0.0025455844122715707, -0.003394112549695428, -0.0014142135623730948, 0.0, 0.0, 0.0, -0.003267991835806299;
     dens << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
 
-    ham = Eigen::MatrixXd::Zero(8, 8);
+    //ham = Eigen::MatrixXd::Zero(8, 8);
     //inter = Eigen::MatrixXd::Zero(8, 8);
     
     Eigen::MatrixXd fock = calc_fock_matrix_fast(ham, inter, dens, model_parameters, 4);

@@ -230,21 +230,22 @@ class HartreeFock:
                             for orb_u in self.gas_model.orbital_types:
                                 u = self.gas_model.ao_index(self.gas_model.atom(r), orb_u) # r & u on same atom
                                 chi_rsu = self.chi_on_atom(self.gas_model.orb(r), orb_s, orb_u, self.gas_model)
-                                print(self.gas_model.orb(p), orb_q, orb_t, p, q, t, self.gas_model.orb(r), orb_s, orb_u, r, s, u, chi_pqt, chi_rsu)
+                                #print(self.gas_model.orb(p), orb_q, orb_t, p, q, t, self.gas_model.orb(r), orb_s, orb_u, r, s, u, chi_pqt, chi_rsu)
+                                #print(r, s, t, u, density_matrix[r, s], interaction_matrix[t, u])
                                 fock_matrix[p,q] += 2.0 * chi_pqt * chi_rsu * interaction_matrix[t,u] * density_matrix[r,s]
-        # Fock exchange term
-        for p in range(ndof):
-            for orb_s in self.gas_model.orbital_types:
-                s = self.gas_model.ao_index(self.gas_model.atom(p), orb_s) # p & s on same atom
-                for orb_u in self.gas_model.orbital_types:
-                    u = self.gas_model.ao_index(self.gas_model.atom(p), orb_u) # p & u on same atom
-                    chi_psu = self.chi_on_atom(self.gas_model.orb(p), orb_s, orb_u, self.gas_model)
-                    for q in range(ndof):
-                        for orb_r in self.gas_model.orbital_types:
-                            r = self.gas_model.ao_index(self.gas_model.atom(q), orb_r) # q & r on same atom
-                            for orb_t in self.gas_model.orbital_types:
-                                t = self.gas_model.ao_index(self.gas_model.atom(q), orb_t) # q & t on same atom
-                                chi_rqt = self.chi_on_atom(orb_r, self.gas_model.orb(q), orb_t, self.gas_model)
-                                fock_matrix[p,q] -= chi_rqt * chi_psu * interaction_matrix[t,u] * density_matrix[r,s]
+        # # Fock exchange term
+        # for p in range(ndof):
+        #     for orb_s in self.gas_model.orbital_types:
+        #         s = self.gas_model.ao_index(self.gas_model.atom(p), orb_s) # p & s on same atom
+        #         for orb_u in self.gas_model.orbital_types:
+        #             u = self.gas_model.ao_index(self.gas_model.atom(p), orb_u) # p & u on same atom
+        #             chi_psu = self.chi_on_atom(self.gas_model.orb(p), orb_s, orb_u, self.gas_model)
+        #             for q in range(ndof):
+        #                 for orb_r in self.gas_model.orbital_types:
+        #                     r = self.gas_model.ao_index(self.gas_model.atom(q), orb_r) # q & r on same atom
+        #                     for orb_t in self.gas_model.orbital_types:
+        #                         t = self.gas_model.ao_index(self.gas_model.atom(q), orb_t) # q & t on same atom
+        #                         chi_rqt = self.chi_on_atom(orb_r, self.gas_model.orb(q), orb_t, self.gas_model)
+        #                         fock_matrix[p,q] -= chi_rqt * chi_psu * interaction_matrix[t,u] * density_matrix[r,s]
         return fock_matrix
 

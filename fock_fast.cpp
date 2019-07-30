@@ -80,8 +80,9 @@ Eigen::MatrixXd calc_fock_matrix_fast(Eigen::MatrixXd hamiltonian_matrix, Eigen:
                             int u = ao_index(atom_r, orb_u, orbital_types, orbitals_per_atom);
                             double chi_rsu = chi_on_atom(orb_r, orb_s, orb_u, model_parameters);
                             fock_matrix(p, q) += 2.0 * chi_pqt * chi_rsu * interaction_matrix.coeffRef(t, u) * density_matrix.coeffRef(r, s);
-                            std::cout << orb_p << " " << orb_q << " " << orb_t << " " << p << " " << q << " " << t << " " 
-                            << orb_r << " " << orb_s << " " << orb_u << " " << r << " " << s << " " << u << " " << chi_pqt << " " << chi_rsu << std::endl;
+                            //std::cout << r << " " << s << " " << t << " " << u << " " << density_matrix.coeffRef(r, s) << " " << interaction_matrix.coeffRef(t, u) << std::endl;
+                            //std::cout << orb_p << " " << orb_q << " " << orb_t << " " << p << " " << q << " " << t << " " 
+                            //<< orb_r << " " << orb_s << " " << orb_u << " " << r << " " << s << " " << u << " " << chi_pqt << " " << chi_rsu << std::endl;
                         }
                     }
                 }
@@ -89,37 +90,37 @@ Eigen::MatrixXd calc_fock_matrix_fast(Eigen::MatrixXd hamiltonian_matrix, Eigen:
         }
     }
 
-    // Fock exchange term
-    for (int p = 0; p < ndof; p++)
-    {
-        int atom_p = atom(p, orbitals_per_atom);
-        std::string orb_p = orb(atom_p, orbital_types, orbitals_per_atom);
-        for (auto orb_s : orbital_types)
-        {
-            int s = ao_index(atom_p, orb_s, orbital_types, orbitals_per_atom);
-            for (auto orb_u : orbital_types)
-            {
-                int u = ao_index(atom_p, orb_u, orbital_types, orbitals_per_atom);
-                double chi_psu = chi_on_atom(orb_p, orb_s, orb_u, model_parameters);
-                for (int q = 0; q < ndof; q++)
-                {
-                    int atom_q = atom(q, orbitals_per_atom);
-                    std::string orb_q = orb(atom_q, orbital_types, orbitals_per_atom);
-                    for (auto orb_r : orbital_types)
-                    {
-                        int r = ao_index(atom_q, orb_r, orbital_types, orbitals_per_atom);
-                        int atom_r = atom(r, orbitals_per_atom);
-                        for (auto orb_t : orbital_types)
-                        {
-                            int t = ao_index(atom_q, orb_t, orbital_types, orbitals_per_atom);
-                            double chi_rqt = chi_on_atom(orb_r, orb_q, orb_t, model_parameters);
-                            fock_matrix(p, q) -= chi_rqt * chi_psu * interaction_matrix.coeffRef(t, u) * density_matrix.coeffRef(r, s);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // // Fock exchange term
+    // for (int p = 0; p < ndof; p++)
+    // {
+    //     int atom_p = atom(p, orbitals_per_atom);
+    //     std::string orb_p = orb(atom_p, orbital_types, orbitals_per_atom);
+    //     for (auto orb_s : orbital_types)
+    //     {
+    //         int s = ao_index(atom_p, orb_s, orbital_types, orbitals_per_atom);
+    //         for (auto orb_u : orbital_types)
+    //         {
+    //             int u = ao_index(atom_p, orb_u, orbital_types, orbitals_per_atom);
+    //             double chi_psu = chi_on_atom(orb_p, orb_s, orb_u, model_parameters);
+    //             for (int q = 0; q < ndof; q++)
+    //             {
+    //                 int atom_q = atom(q, orbitals_per_atom);
+    //                 std::string orb_q = orb(atom_q, orbital_types, orbitals_per_atom);
+    //                 for (auto orb_r : orbital_types)
+    //                 {
+    //                     int r = ao_index(atom_q, orb_r, orbital_types, orbitals_per_atom);
+    //                     int atom_r = atom(r, orbitals_per_atom);
+    //                     for (auto orb_t : orbital_types)
+    //                     {
+    //                         int t = ao_index(atom_q, orb_t, orbital_types, orbitals_per_atom);
+    //                         double chi_rqt = chi_on_atom(orb_r, orb_q, orb_t, model_parameters);
+    //                         fock_matrix(p, q) -= chi_rqt * chi_psu * interaction_matrix.coeffRef(t, u) * density_matrix.coeffRef(r, s);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     return fock_matrix;
 }

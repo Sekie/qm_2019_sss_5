@@ -1,7 +1,8 @@
 import numpy as np
+import fock_fast
 #from noble_gas_model import NobleGasModl
 class HartreeFock:
-    def __init__(self, NobleGasModel, atomic_coordinates):
+    def __init__(self, NobleGasModel, atomic_coordinates, useFockFast = False):
         self.atomic_coordinates = atomic_coordinates
         #self.gas_model = NobleGasModel...
         self.ndof = len(self.atomic_coordinates) * NobleGasModel.orbitals_per_atom
@@ -9,7 +10,14 @@ class HartreeFock:
         self.hamiltonian_matrix = self.calculate_hamiltonian_matrix(NobleGasModel)
         self.chi_tensor = self.calculate_chi_tensor(NobleGasModel)
         self.density_matrix = self.calculate_atomic_density_matrix(NobleGasModel)
-        self.fock_matrix = self.calculate_fock_matrix() #check for error
+
+        self.useFockFast = useFockFast
+        self.model_parameters = NobleGasModel.model_parameters
+        self.orbitals_per_atom = NobleGasModel.orbitals_per_atom
+        if useFockFast:
+            self.fock_matrix = fock_fast.calculate_fock_matrix_fast(self.hamiltonian_matrix, self.interaction_matrix, self.density_matrix, NobleGasModel.model_parameters, NobleGasModel.orbitals_per_atom)
+        else:
+            self.fock_matrix = self.calculate_fock_matrix() #check for error
         #self.density_matrix = self.calculate_density_matrix(self.fock_matrix)
         #self.chi_tensor = self.calculate_chi_tensor(self.atomic_coordinates, self.ndof ,NobleGasModel.model_parameters) 
 
@@ -185,7 +193,10 @@ class HartreeFock:
         old_density_matrix = self.density_matrix.copy()
         for iteration in range(max_scf_iterations):
             print(F'iteration is {iteration}')
-            self.fock_matrix = self.calculate_fock_matrix()
+            if self.useFockFast:
+                self.fock_matrix = fock_fast.calculate_fock_matrix_fast(self.hamiltonian_matrix, self.interaction_matrix, self.density_matrix, self.model_parameters, self.orbitals_per_atom)
+            else:
+                self.fock_matrix = self.calculate_fock_matrix()
             self.density_matrix = self.calculate_density_matrix(NobleGasModel)
 
             error_norm = np.linalg.norm(old_density_matrix - self.density_matrix)

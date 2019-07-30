@@ -201,3 +201,62 @@ Eigen::MatrixXd calculate_fock_matrix_fast(Eigen::MatrixXd hamiltonian_matrix, E
     // std::cout << "fock matrix:" << std::endl << fock_matrix << std::endl;
     return fock_matrix;
 }
+
+Eigen::MatrixXd test_fock_matrix_fast(Eigen::MatrixXd hamiltonian_matrix, Eigen::MatrixXd interaction_matrix, Eigen::MatrixXd density_matrix, std::map<std::string, double> model_parameters, int orbitals_per_atom)
+{
+    std::vector<std::string> orbital_types;
+    orbital_types.push_back("s");
+    orbital_types.push_back("px");
+    orbital_types.push_back("py");
+    orbital_types.push_back("pz");
+    int ndof = hamiltonian_matrix.rows();
+    Eigen::MatrixXd fock_matrix = hamiltonian_matrix;
+
+    // Hartree potential
+    for (int p = 0; p < ndof; p++)
+    {
+        for (int q = 0; q < 4; q++)
+        {
+            for (int t = 0; t < 4; t++)
+            {
+                double chi_pqt = 3.45;
+                for (int r = 0; r < ndof; r++)
+                {
+                    for (int s = 0; s < 4; s++)
+                    {
+                        for (int u = 0; u < 4; u++)
+                        {
+                            double chi_rsu = 4.56;
+                            fock_matrix(p, q) += 2.0 * chi_pqt * chi_rsu * interaction_matrix.coeffRef(t, u) * density_matrix.coeffRef(r, s);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Fock exchange term
+    for (int p = 0; p < ndof; p++)
+    {
+        for (int s = 0; s < 4; s++)
+        {
+            for (int u = 0; u < 4; u++)
+            {
+                double chi_psu = 3.45;
+                for (int q = 0; q < ndof; q++)
+                {
+                    for (int r = 0; r < 4; r++)
+                    {
+                        for (int t = 0; t < 4; t++)
+                        {
+                            double chi_rqt = 4.56;
+                            fock_matrix(p, q) -= chi_rqt * chi_psu * interaction_matrix.coeffRef(t, u) * density_matrix.coeffRef(r, s);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // std::cout << "fock matrix:" << std::endl << fock_matrix << std::endl;
+    return fock_matrix;
+}
